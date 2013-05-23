@@ -25,7 +25,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nick='pygeobot', realname='pygeobot', username='pygeobot', debug=False):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False):
 		threading.Thread.__init__ (self)
 		self._stop = threading.Event()
 		# adding keyboardInterruptHandler
@@ -43,7 +43,7 @@ class pygeobot(threading.Thread):
 					'ircServerPort' : ircServerPort,
 					'username' : username,
 					'realname' : realname,
-					'nick' : nick,
+					'nickname' : nickname,
 					'debug' : debug
 				}
 		else:
@@ -83,8 +83,45 @@ class pygeobot(threading.Thread):
 	def run (self):
 		self.ircSock = socket.socket ()
 		self.ircSock.connect ((self.config['ircServerIP'], int (self.config['ircServerPort'])))
+		
+		self.send ("NICK "+self.config['nickname'])
+		self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
+		self.send ("JOIN #geohhot")
 		while True:
+			line = self.ircSock.recv(1024)
+			print line
+			args = line.split()
+			if args[1] == "NOTICE":
+				msg = line[line.rfind(":")+1:-1]
+				self.log (msg)
+			if args[1] == "MODE":
+				msg = line[line.rfind(":")+1:-1]
+				self.log ("MODE " +args[1] + " " + msg)
+			if args[1] == "PRIVMSG":
+				recipient = args[2]
+				content = line[line.rfind(":"):-1]
+				contentParams = content.split()
+				if (contentParams[0] == ">hello"):
+					self.pm(recipient, "Ahalo bleh")
+			if args[0] == "PING":
+				# send pong message
+				self.send ("PONG "+line[line.rfind(":"):])
+
+	# raw send to IRC socket
+	def send (self, string):
+		try:
+			self.ircSock.send(string + "\n\r")
+			debugPrint ("[SENT]" + string)
+		except NameError:
 			pass
+
+	# send PRIVMSG
+	def pm (self, recipient, content):
+		self.send ("PRIVMSG "+recipient+" :"+content)
+
+	# loging messages to terminal ( and to log file if defined)
+	def log (self, string):
+		print (string)
 
 	# join function
 	def join (self):
