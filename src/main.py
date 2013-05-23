@@ -9,4 +9,4 @@ mybot = pygeobot(config='config.json')
 
 mybot.connect()
 
-print "Tho i can do something yet"
+print "Here must do something else"
