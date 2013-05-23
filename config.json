@@ -1,0 +1,8 @@
+{
+    "ircServerHost": "irc.freenode.net", 
+    "ircServerPort": "6667", 
+    "nickname": "pygeobot", 
+    "realname": "Py Geo Bot",
+    "username": "pygeobot",
+    "debug" : true
+}
