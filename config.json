@@ -4,5 +4,8 @@
     "nickname": "pygeobot", 
     "realname": "Py Geo Bot",
     "username": "pygeobot",
-    "debug" : true
+    "debug" : true,
+    "channels" : [
+    	"#geohhot"
+    ]
 }

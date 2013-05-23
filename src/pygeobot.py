@@ -26,7 +26,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = []):
 		threading.Thread.__init__ (self)
 		self._stop = threading.Event()
 		# adding keyboardInterruptHandler
@@ -45,7 +45,8 @@ class pygeobot(threading.Thread):
 					'username' : username,
 					'realname' : realname,
 					'nickname' : nickname,
-					'debug' : debug
+					'debug' : debug,
+					'channels' : channels
 				}
 		else:
 			# load configuration from config file
@@ -91,7 +92,9 @@ class pygeobot(threading.Thread):
 		# check if nick is taken
 		self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
 		# join channels (wip)
-		self.send ("JOIN #geohhot")
+		for chan in self.config["channels"]:
+			self.send ("JOIN "+chan)
+
 		while True:
 			line = self.ircSock.recv(1024)
 			print line[:-1]
@@ -108,7 +111,7 @@ class pygeobot(threading.Thread):
 				self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
 				contentParams = msg.content.split()
 				if (contentParams[0] == ">hello"):
-					self.pm(recipient, "Ahalo bleh")
+					self.pm(msg.recipient, "Ahalo bleh")
 			if args[0] == "PING":
 				# send pong message
 				self.send ("PONG "+line[line.rfind(":"):])
@@ -132,8 +135,14 @@ class pygeobot(threading.Thread):
 		print (string)
 
 	# join function
-	def join (self):
-		pass
+	def join (self, *channels):
+		for chan in channels:
+			# add to toJoin list
+			try: 
+				self.config["channels"].append (chan)
+			except KeyError:
+				self.config["channels"] = []
+				self.config["channels"].append (chan)
 
 	# part function
 	def part (self):
