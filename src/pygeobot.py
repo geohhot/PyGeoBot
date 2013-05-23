@@ -4,6 +4,7 @@
 """
 
 import toolbox
+from toolbox import termcode
 import threading
 import socket
 import signal
@@ -60,6 +61,7 @@ class pygeobot(threading.Thread):
 	"""
 	def connect (self):
 		# check for config to be ok
+		print (termcode("BLUE") + "================================================")
 		try:
 			ircServerPort = int (self.config['ircServerPort'])
 		except ValueError:
@@ -75,6 +77,7 @@ class pygeobot(threading.Thread):
 			toolbox.die ("Not enough parameters given in config file. [" + self.configFileName + "]")
 		# open socket to irc Server
 		self.debugPrint("Semms Ok. Connecting: "+self.config['ircServerHost'] + " [" + self.config['ircServerPort'] + "]")
+		print ( "================================================"  + termcode("ENDC"))
 		self.config['ircServerIP'] = ircServerIP
 		self.status = 1
 		self.start()
@@ -85,7 +88,9 @@ class pygeobot(threading.Thread):
 		self.ircSock.connect ((self.config['ircServerIP'], int (self.config['ircServerPort'])))
 		
 		self.send ("NICK "+self.config['nickname'])
+		# check if nick is taken
 		self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
+		# join channels (wip)
 		self.send ("JOIN #geohhot")
 		while True:
 			line = self.ircSock.recv(1024)
@@ -93,14 +98,15 @@ class pygeobot(threading.Thread):
 			args = line.split()
 			if args[1] == "NOTICE":
 				msg = line[line.rfind(":")+1:-1]
-				self.log (msg)
+				self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
 			if args[1] == "MODE":
-				msg = line[line.rfind(":")+1:-1]
-				self.log ("MODE " +args[1] + " " + msg)
+				msg = " ".join (args[2:])
+				self.log (termcode("DARK_YELLOW") + "MODE " + msg + termcode("ENDC"))
 			if args[1] == "PRIVMSG":
-				recipient = args[2]
-				content = line[line.rfind(":")+1:-1]
-				contentParams = content.split()
+				# print pretty output
+				msg = IRCMessage(line)
+				self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
+				contentParams = msg.content.split()
 				if (contentParams[0] == ">hello"):
 					self.pm(recipient, "Ahalo bleh")
 			if args[0] == "PING":
@@ -160,3 +166,9 @@ class pygeobot(threading.Thread):
 		self._stop.set()
 		sys.exit(0)
 
+class IRCMessage:
+	def __init__ (self, privmsg_line):
+		args = privmsg_line.split()
+		self.recipient = args[2]
+		self.author = privmsg_line[1:privmsg_line.find("!")]
+		self.content = privmsg_line[privmsg_line.rfind(":")+1:-1]
