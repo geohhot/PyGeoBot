@@ -11,4 +11,4 @@ mybot.connect()
 
 print "Here must do something else"
 
-mybot.join ("##dreamincode")
+#mybot.join ("##dreamincode")

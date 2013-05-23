@@ -5,6 +5,7 @@
 
 import json
 import sys
+import re
 
 def die (msg):
 	print (msg)
@@ -63,3 +64,38 @@ def termcode (color):
 		return '\033[%sm'%CODE[color]
 	except KeyError:
 		pass
+
+# yet not all colors are in
+IRC_COLOR = {
+	"BOLD" : 0,
+	"GREENISH" : 9,
+	"GREEN" : 3,
+	"BLUE" : 2,
+	"RED" : 5,
+	"RED_BOLD" : 4,
+	"YELLOW" : 7,
+	"YELLOW_BOLD" : 8,
+	"BLUE_BOLD" : 12,
+	"BLUE_LIGHT_BOLD" : 11,
+	"ENDC" : 15,
+	"PURPLE" : 13
+}
+
+def irccode (color):
+	try:
+		return str('\x03') + str(IRC_COLOR[color])
+	except KeyError:
+		pass
+
+def is_proper_url(url):
+	regex = re.compile(
+        r'^(?:http)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+	if regex.match (url) != None:
+		return True
+	else:
+		return False

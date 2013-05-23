@@ -4,11 +4,12 @@
 """
 
 import toolbox
-from toolbox import termcode
+from toolbox import termcode, irccode
 import threading
 import socket
 import signal
 import sys
+import requests
 
 class pygeobot(threading.Thread):
 
@@ -110,8 +111,19 @@ class pygeobot(threading.Thread):
 				msg = IRCMessage(line)
 				self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
 				contentParams = msg.content.split()
+				# checking for URLs
+				for url in contentParams:
+					if toolbox.is_proper_url (url):
+						# get URL's title
+						resp = requests.get(url)
+						# print it
+						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
+						# send it back
+						if title:
+							self.pm (msg.get_reply_to(), "[Link Title] " + title)
+				# checking for commands
 				if (contentParams[0] == ">hello"):
-					self.pm(msg.recipient, "Ahalo bleh")
+					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
 			if args[0] == "PING":
 				# send pong message
 				self.send ("PONG "+line[line.rfind(":"):])
@@ -180,4 +192,10 @@ class IRCMessage:
 		args = privmsg_line.split()
 		self.recipient = args[2]
 		self.author = privmsg_line[1:privmsg_line.find("!")]
-		self.content = privmsg_line[privmsg_line.rfind(":")+1:-1]
+		self.content = privmsg_line[privmsg_line.find(':',privmsg_line.find(self.recipient)+1)+1:]
+	def get_reply_to(self):
+		if self.recipient[0:1] != "#":
+			# its not a channel
+			return self.author
+		else:
+			return self.recipient
