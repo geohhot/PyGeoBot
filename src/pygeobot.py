@@ -89,7 +89,7 @@ class pygeobot(threading.Thread):
 		self.send ("JOIN #geohhot")
 		while True:
 			line = self.ircSock.recv(1024)
-			print line
+			print line[:-1]
 			args = line.split()
 			if args[1] == "NOTICE":
 				msg = line[line.rfind(":")+1:-1]
@@ -99,7 +99,7 @@ class pygeobot(threading.Thread):
 				self.log ("MODE " +args[1] + " " + msg)
 			if args[1] == "PRIVMSG":
 				recipient = args[2]
-				content = line[line.rfind(":"):-1]
+				content = line[line.rfind(":")+1:-1]
 				contentParams = content.split()
 				if (contentParams[0] == ">hello"):
 					self.pm(recipient, "Ahalo bleh")
@@ -117,7 +117,9 @@ class pygeobot(threading.Thread):
 
 	# send PRIVMSG
 	def pm (self, recipient, content):
-		self.send ("PRIVMSG "+recipient+" :"+content)
+		msg = "PRIVMSG "+recipient+" :"+content
+		print msg
+		self.send (msg)
 
 	# loging messages to terminal ( and to log file if defined)
 	def log (self, string):
