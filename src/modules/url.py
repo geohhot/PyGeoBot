@@ -13,7 +13,7 @@ class URLModule(module.Module):
 			for url in contentParams:
 				if toolbox.is_proper_url (url):
 					# check if url is YOUTUBE url
-					
+
 					try:
 						# get URL's title
 						resp = requests.get(url)
@@ -21,6 +21,6 @@ class URLModule(module.Module):
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
 						# send it back
 						if title:
-							self.pm (self.message.get_reply_to(), irccode("PURPLE") + "Link Title: " + irccode("BOLD") + title)
+							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:
 						pass
