@@ -83,10 +83,12 @@ IRC_COLOR = {
 
 def irccode (color):
 	try:
-		return '\003' + str(IRC_COLOR[color])
+		result = ("%c0%i") % (0x03, IRC_COLOR[color]) 
+		return result
 	except KeyError:
-		pass
+		return ""
 
+# from stalk overflow: "django url validation regex"
 def is_proper_url(url):
 	regex = re.compile(
         r'^(?:http)s?://' # http:// or https://

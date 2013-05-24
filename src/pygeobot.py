@@ -100,7 +100,7 @@ class pygeobot(threading.Thread):
 
 		while True:
 			line = self.ircSock.recv(2048)
-			self.debugPrint (len(line[:-1]))
+			self.debugPrint (line[:-1])
 			args = line.split()
 			if args[1] == "NOTICE":
 				msg = line[line.rfind(":")+1:-1]
@@ -122,7 +122,7 @@ class pygeobot(threading.Thread):
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
 						# send it back
 						if title:
-							self.pm (msg.get_reply_to(), "[Link Title] " + title)
+							self.pm (msg.get_reply_to(), irccode("GREEN") + "Link Title: " + irccode("BOLD") + title)
 				# checking for commands
 				if (contentParams[0] == ">hello"):
 					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
