@@ -13,6 +13,8 @@ import requests
 
 class pygeobot(threading.Thread):
 
+	notification_string = termcode("BLUE") + "-" + termcode("BOLD") + termcode("GREEN") + "!" + termcode("ENDC") + termcode("BLUE") + "-" + termcode("ENDC") + " "
+
 	status = 0
 	"""
 		Status codes:
@@ -63,13 +65,13 @@ class pygeobot(threading.Thread):
 	"""
 	def connect (self):
 		# check for config to be ok
-		print (termcode("BLUE") + "================================================")
+		print (termcode("GREEN") + "================================================")
 		try:
 			ircServerPort = int (self.config['ircServerPort'])
 		except ValueError:
 			toolbox.die ("Error in congi file ("+self.configFileName+"): ircServerPort must be type of integer")
 		# check if server is ok	
-		self.debugPrint("Checking for server...")
+		print("Checking for server...")
 		ircServerIP = ""
 		try:
 			ircServerIP = socket.gethostbyname(self.config['ircServerHost'])
@@ -78,7 +80,7 @@ class pygeobot(threading.Thread):
 		except KeyError:
 			toolbox.die ("Not enough parameters given in config file. [" + self.configFileName + "]")
 		# open socket to irc Server
-		self.debugPrint("Semms Ok. Connecting: "+self.config['ircServerHost'] + " [" + self.config['ircServerPort'] + "]")
+		print("Semms Ok. Connecting: "+self.config['ircServerHost'] + " [" + self.config['ircServerPort'] + "]")
 		print ( "================================================"  + termcode("ENDC"))
 		self.config['ircServerIP'] = ircServerIP
 		self.status = 1
@@ -97,15 +99,15 @@ class pygeobot(threading.Thread):
 			self.send ("JOIN "+chan)
 
 		while True:
-			line = self.ircSock.recv(1024)
-			print line[:-1]
+			line = self.ircSock.recv(2048)
+			self.debugPrint (len(line[:-1]))
 			args = line.split()
 			if args[1] == "NOTICE":
 				msg = line[line.rfind(":")+1:-1]
 				self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
 			if args[1] == "MODE":
-				msg = " ".join (args[2:])
-				self.log (termcode("DARK_YELLOW") + "MODE " + msg + termcode("ENDC"))
+				msg = line[line.find("MODE"):]
+				self.log (termcode("DARK_YELLOW") + msg + termcode("ENDC"))
 			if args[1] == "PRIVMSG":
 				# print pretty output
 				msg = IRCMessage(line)
@@ -127,6 +129,14 @@ class pygeobot(threading.Thread):
 			if args[0] == "PING":
 				# send pong message
 				self.send ("PONG "+line[line.rfind(":"):])
+			if args[1] == "JOIN":
+				# join message
+				who_joined = IRCUser(args[0])
+				self.log (self.notification_string +termcode("BOLD") + termcode("DARK_BLUE") + who_joined.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_joined.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
+			if args[1] == "PART":
+				# someone left channel
+				who_left = IRCUser(args[0])
+				self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + who_left.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_left.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
 
 	# raw send to IRC socket
 	def send (self, string):
@@ -199,3 +209,8 @@ class IRCMessage:
 			return self.author
 		else:
 			return self.recipient
+
+class IRCUser:
+	def __init__ (self, string):
+		self.nick = string[1:string.find("!")]
+		self.hostname = string[string.find("!")+1:]

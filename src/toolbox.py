@@ -63,7 +63,7 @@ def termcode (color):
 	try:
 		return '\033[%sm'%CODE[color]
 	except KeyError:
-		pass
+		return ""
 
 # yet not all colors are in
 IRC_COLOR = {
@@ -83,7 +83,7 @@ IRC_COLOR = {
 
 def irccode (color):
 	try:
-		return str('\x03') + str(IRC_COLOR[color])
+		return '\003' + str(IRC_COLOR[color])
 	except KeyError:
 		pass
 
