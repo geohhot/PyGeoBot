@@ -124,7 +124,7 @@ class pygeobot(threading.Thread):
 							# send it back
 							if title:
 								self.pm (msg.get_reply_to(), irccode("BLUE") + "Link Title: " + irccode("BOLD") + title)
-						except SSLError:
+						except requests.SSLError:
 							pass
 				# checking for commands
 				if (contentParams[0] == ">hello"):
