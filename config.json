@@ -2,7 +2,7 @@
     "ircServerHost": "irc.freenode.net", 
     "ircServerPort": "6667", 
     "nickname": "pygeobot", 
-    "realname": "Py Geo Bot",
+    "realname": "Py Geo Bot (http://bit.ly/12S9zlD)",
     "username": "pygeobot",
     "debug" : true,
     "channels" : [

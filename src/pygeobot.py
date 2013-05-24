@@ -9,11 +9,26 @@ import threading
 import socket
 import signal
 import sys
+sys.path.append ("./src/modules/")
 import requests
+from irc import IRCMessage, IRCUser
+import url
 
 class pygeobot(threading.Thread):
 
 	notification_string = termcode("BLUE") + "-" + termcode("BOLD") + termcode("GREEN") + "!" + termcode("ENDC") + termcode("BLUE") + "-" + termcode("ENDC") + " "
+
+	config = {
+	    "ircServerHost": "", 
+	    "ircServerPort": "",
+	    "ircServerPassword" : "",
+	    "nickname": "", 
+	    "realname": "",
+	    "username": "",
+	    "debug" : False,
+	    "channels" : []
+	}
+
 
 	status = 0
 	"""
@@ -27,7 +42,7 @@ class pygeobot(threading.Thread):
 		1 : 'connecting', 
 		2 : 'connected'
 	}
-
+	
 	# constructor
 	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = []):
 		threading.Thread.__init__ (self)
@@ -91,55 +106,73 @@ class pygeobot(threading.Thread):
 		self.ircSock = socket.socket ()
 		self.ircSock.connect ((self.config['ircServerIP'], int (self.config['ircServerPort'])))
 		
+		try:
+			if self.config['ircServerPassword']:
+				self.send ("PASS "+self.config['ircServerPassword'])
+		except KeyError:
+			pass
 		self.send ("NICK "+self.config['nickname'])
-		# check if nick is taken
 		self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
+		# check if nick is taken
+		while True:
+			line = self.ircSock.recv(2048)
+			if self.parse (line):
+				break
+
 		# join channels (wip)
 		for chan in self.config["channels"]:
 			self.send ("JOIN "+chan)
 
 		while True:
 			line = self.ircSock.recv(2048)
-			self.debugPrint (line[:-1])
-			args = line.split()
-			if args[1] == "NOTICE":
-				msg = line[line.rfind(":")+1:-1]
-				self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
-			if args[1] == "MODE":
-				msg = line[line.find("MODE"):]
-				self.log (termcode("DARK_YELLOW") + msg + termcode("ENDC"))
-			if args[1] == "PRIVMSG":
-				# print pretty output
-				msg = IRCMessage(line)
-				self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
-				contentParams = msg.content.split()
-				# checking for URLs
-				for url in contentParams:
-					if toolbox.is_proper_url (url):
-						try:
-							# get URL's title
-							resp = requests.get(url)
-							# print it
-							title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
-							# send it back
-							if title:
-								self.pm (msg.get_reply_to(), irccode("BLUE") + "Link Title: " + irccode("BOLD") + title)
-						except requests.SSLError:
-							pass
-				# checking for commands
-				if (contentParams[0] == ">hello"):
-					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
-			if args[0] == "PING":
-				# send pong message
-				self.send ("PONG "+line[line.rfind(":"):])
-			if args[1] == "JOIN":
-				# join message
-				who_joined = IRCUser(args[0])
-				self.log (self.notification_string +termcode("BOLD") + termcode("DARK_BLUE") + who_joined.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_joined.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
-			if args[1] == "PART":
-				# someone left channel
-				who_left = IRCUser(args[0])
-				self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + who_left.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_left.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
+			self.parse (line)
+
+	# parse messages from IRC server
+	def parse (self, line):
+		self.debugPrint (line[:-1])
+		args = line.split()
+		try: 
+			if int(args[1]):
+				# returned status code
+				if args[1] == "001":
+					# welcome message, so nickname is ok
+					return True
+				if args[1] == "433":
+					# nickname is taken, change it and resend
+					self.config['nickname'] = self.config['nickname']+"_"
+					self.send ("NICK "+self.config['nickname'])
+					self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
+		except ValueError:
+			pass
+		if args[1] == "NOTICE":
+			msg = line[line.rfind(":")+1:-1]
+			self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
+		if args[1] == "MODE":
+			msg = line[line.find("MODE"):]
+			self.log (termcode("DARK_YELLOW") + msg + termcode("ENDC"))
+		if args[1] == "PRIVMSG":
+			# print pretty output
+			msg = IRCMessage(line)
+			self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
+			contentParams = msg.content.split()
+			user = IRCUser(args[0])
+			# checking for URLs
+			url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock)
+			url_module.start()
+			# checking for commands
+			if (contentParams[0] == ">hello"):
+				self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
+		if args[0] == "PING":
+			# send pong message
+			self.send ("PONG "+line[line.rfind(":"):])
+		if args[1] == "JOIN":
+			# join message
+			who_joined = IRCUser(args[0])
+			self.log (self.notification_string +termcode("BOLD") + termcode("DARK_BLUE") + who_joined.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_joined.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
+		if args[1] == "PART":
+			# someone left channel
+			who_left = IRCUser(args[0])
+			self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + who_left.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_left.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
 
 	# raw send to IRC socket
 	def send (self, string):
@@ -199,21 +232,3 @@ class pygeobot(threading.Thread):
 			pass
 		self._stop.set()
 		sys.exit(0)
-
-class IRCMessage:
-	def __init__ (self, privmsg_line):
-		args = privmsg_line.split()
-		self.recipient = args[2]
-		self.author = privmsg_line[1:privmsg_line.find("!")]
-		self.content = privmsg_line[privmsg_line.find(':',privmsg_line.find(self.recipient)+1)+1:]
-	def get_reply_to(self):
-		if self.recipient[0:1] != "#":
-			# its not a channel
-			return self.author
-		else:
-			return self.recipient
-
-class IRCUser:
-	def __init__ (self, string):
-		self.nick = string[1:string.find("!")]
-		self.hostname = string[string.find("!")+1:]

@@ -67,23 +67,23 @@ def termcode (color):
 
 # yet not all colors are in
 IRC_COLOR = {
-	"BOLD" : 0,
-	"GREENISH" : 9,
-	"GREEN" : 3,
-	"BLUE" : 2,
-	"RED" : 5,
-	"RED_BOLD" : 4,
-	"YELLOW" : 7,
-	"YELLOW_BOLD" : 8,
-	"BLUE_BOLD" : 12,
-	"BLUE_LIGHT_BOLD" : 11,
-	"ENDC" : 15,
-	"PURPLE" : 13
+	"BOLD" : '00',
+	"GREENISH" : '09',
+	"GREEN" : '03',
+	"BLUE" : '02',
+	"RED" : '05',
+	"RED_BOLD" : '04',
+	"YELLOW" : '07',
+	"YELLOW_BOLD" : '08',
+	"BLUE_BOLD" : '12',
+	"BLUE_LIGHT_BOLD" : '11',
+	"ENDC" : '15',
+	"PURPLE" : '13'
 }
 
 def irccode (color):
 	try:
-		result = ("%c0%i") % (0x03, IRC_COLOR[color]) 
+		result = ("%c%s") % (0x03, IRC_COLOR[color])
 		return result
 	except KeyError:
 		return ""
