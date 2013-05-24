@@ -116,13 +116,16 @@ class pygeobot(threading.Thread):
 				# checking for URLs
 				for url in contentParams:
 					if toolbox.is_proper_url (url):
-						# get URL's title
-						resp = requests.get(url)
-						# print it
-						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
-						# send it back
-						if title:
-							self.pm (msg.get_reply_to(), irccode("GREEN") + "Link Title: " + irccode("BOLD") + title)
+						try:
+							# get URL's title
+							resp = requests.get(url)
+							# print it
+							title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
+							# send it back
+							if title:
+								self.pm (msg.get_reply_to(), irccode("BLUE") + "Link Title: " + irccode("BOLD") + title)
+						except SSLError:
+							pass
 				# checking for commands
 				if (contentParams[0] == ">hello"):
 					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
