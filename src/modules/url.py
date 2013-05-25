@@ -24,6 +24,7 @@ class URLModule(module.Module):
 					youtube_module.run()
 					continue
 				if toolbox.is_proper_url (url):
+					#print "Found url: "+url
 					try:
 						# get URL's title
 						resp = requests.get(url)
@@ -31,6 +32,7 @@ class URLModule(module.Module):
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
 						# send it back
 						if title:
+							#print title
 							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:
 						pass
