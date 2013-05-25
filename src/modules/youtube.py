@@ -41,13 +41,25 @@ class YouTubeModule(module.Module):
 				resp = requests.get (self.YOUTUBE_REST_API+vid, params=data)
 				#print "URL: "+resp.url
 				json = resp.json()
-				view_count = str(json['entry']['yt$statistics']['viewCount'])
-				average_rating = str(json['entry']['gd$rating']['average'])
+				view_count = json['entry']['yt$statistics']['viewCount']
+				view_count = int (view_count)
+				# make view count like 12k / 5k
+				if view_count >= 1000000000:
+					view_count /= 1000000000
+					view_count = ("%.1f") % view_count + "b"
+				elif view_count >= 1000000:
+					view_count /= 1000000
+					view_count = ("%.1f") % view_count + "m"
+				elif view_count >= 1000:
+					view_count /= 1000
+					view_count = ("%.1f") % view_count + "k"
+				average_rating = json['entry']['gd$rating']['average']
+				average_rating = ("%.1f") % average_rating
 				title = str(json['entry']['title']['$t'])
 				author = str(json['entry']['author'][0]['name']['$t'])
 
 				self.pm (self.message.get_reply_to(), irccode("CYAN") + "You" + irccode("DARK_RED") + "Tube: " + irccode("GREENISH") + title)
-				self.pm (self.message.get_reply_to(), irccode("MAGNETA") + "Stats: " + irccode("RED") + "VC: "+view_count + irccode("GREEN") + " AR: "+average_rating + irccode("BLUE") + " Author: "+author )
+				self.pm (self.message.get_reply_to(), irccode("MAGNETA") + "Stats: " + irccode("GREEN") + "Views: "+view_count + irccode("GREEN") + " Rating: "+average_rating + irccode("BLUE") + " Author: "+author )
 			except Exception:
 				# something went wrong, could be of wrong url
 				pass
