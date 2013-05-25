@@ -14,14 +14,14 @@ class YouTubeModule(module.Module):
 		self.message - should contain youtube URL, so this module will parse URL
 	"""
 	def run (self):
-		#print "YouTube module has started."
+		print "YouTube module has started."
 		# double check if URL is fine ?
 		match = toolbox.is_youtube_url(self.message.content)
 		if match:
 			url = match.group()
 			# now its ok, so at first get video id
-			long_url_re = re.compile ("(\?|&)v=\w*")
-			short_url_re = re.compile ("(youtu.be/\w*)")
+			long_url_re = re.compile ("(\?|&)v=[-\w]*")
+			short_url_re = re.compile ("(youtu.be/[-\w]*)")
 			vid = ""
 			ml = long_url_re.search(url)
 			ms = long_url_re.search(url)
@@ -33,7 +33,7 @@ class YouTubeModule(module.Module):
 				#print "OOps!"
 				return
 			# then do GET request
-			#print "vid: " + vid
+			print "vid: " + vid
 			data = {
 				'alt' : 'json'
 			}
