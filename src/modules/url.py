@@ -29,6 +29,8 @@ class URLModule(module.Module):
 						resp = requests.get(url)
 						# print it
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
+						# Remove non-space whitespace
+						title = re.sub(r'([\r\n\t])', '', title)
 						# send it back
 						title = title.strip()
 						if title:
