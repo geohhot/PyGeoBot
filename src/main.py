@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  main.py - body of pygeobot
  Author: Geohhot

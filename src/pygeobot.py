@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  PyGeoBot - python IRC bot
  Author: Geohhot
@@ -42,7 +43,7 @@ class pygeobot(threading.Thread):
 		1 : 'connecting', 
 		2 : 'connected'
 	}
-	
+
 	# constructor
 	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = []):
 		threading.Thread.__init__ (self)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class IRCMessage:
 	def __init__ (self, privmsg_line):
 		args = privmsg_line.split()

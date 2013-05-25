@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import module
 from irc import IRCMessage, IRCUser
 import sys
@@ -20,6 +21,7 @@ class URLModule(module.Module):
 						# print it
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
 						# send it back
+						title = title.replace ("\n", "").replace ("\r", "").replace ("\t", "")
 						if title:
 							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:

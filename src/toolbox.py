@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  toolbox - helper library for project PyGeoBot
  Autho: Geohhot
