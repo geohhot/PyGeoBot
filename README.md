@@ -3,7 +3,7 @@ pyGeoBot
 
 **pyGeoBot** - an IRC bot in python.
 
-Main feautures
+Main features
 --------------
 
 * Link recognition
