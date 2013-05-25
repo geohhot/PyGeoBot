@@ -85,7 +85,7 @@ IRC_COLOR = {
 	"LIGHT_GRAY" : 62,
 	"DARK_GRAY" : 63,
 	
-	"DARK_RED" : 64,
+	"DARK_RED" : 68,
 	"DARK_ORANGE" : 65,
 	"DARK_YELLOW" : 66,
 	"DARK_LIGHT_GREEN" : 67,
@@ -94,9 +94,11 @@ IRC_COLOR = {
 	"DARK_CYAN" : 70,
 	"DARK_LIGHT_BLUE" : 71,
 	"DARK_BLUE" : 72,
-	"DARK_PURPLE" : 73,
+	"DARK_PURPLE" : 70,
 	"DARK_MAGNETA" : 74,
 	"DARK_PURPLE_RED" : 75,
+
+	"GREENISH" : 73
 }
 
 def irccode (color):
@@ -106,7 +108,7 @@ def irccode (color):
 	except KeyError:
 		return ""
 
-# from stalk overflow: "django url validation regex"
+# from stak overflow: "django url validation regex"
 def is_proper_url(url):
 	regex = re.compile(
         r'^(?:http)s?://' # http:// or https://
@@ -119,3 +121,8 @@ def is_proper_url(url):
 		return True
 	else:
 		return False
+
+# youtube regex - from stak overflow
+def is_youtube_url (url):
+	youtube_re = re.compile(r'(https?://)?(www\.)?youtube\.(com|nl)/watch\?v=([-\w]+)')
+	return youtube_re.match (url)

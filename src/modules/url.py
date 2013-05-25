@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import module
+import youtube
 from irc import IRCMessage, IRCUser
 import sys
 sys.path.append ("../")
@@ -14,14 +15,22 @@ class URLModule(module.Module):
 			for url in contentParams:
 				if toolbox.is_proper_url (url):
 					# check if url is YOUTUBE url
-
+					match = toolbox.is_youtube_url (url)
+					#print match
+					if match:
+						#ding ding: youtube URL, pass it to YT module
+						new_message = self.message
+						new_message.content = match.group()
+						youtube_module = youtube.YouTubeModule(sender=self.sender, message=new_message, ircSock=self.ircSock)
+						youtube_module.run()
+						continue
 					try:
 						# get URL's title
 						resp = requests.get(url)
 						# print it
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
 						# send it back
-						title = title.replace ("\n", "").replace ("\r", "").replace ("\t", "")
+						title = title.strip ("\n\r\t")
 						if title:
 							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:

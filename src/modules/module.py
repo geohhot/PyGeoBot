@@ -6,6 +6,11 @@ module.py - PyGeoBot module construction
 import threading
 
 class Module (threading.Thread):
+	"""
+		sender - type is IRCUser, author of message
+		message - message that was sent from IRC server
+		ircSock - type is socket, socket in what result must be printed
+	"""
 	def __init__ (self, sender='', message='', ircSock=''):
 		threading.Thread.__init__(self)
 		self.message = message

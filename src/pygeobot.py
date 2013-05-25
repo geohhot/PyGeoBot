@@ -154,7 +154,7 @@ class pygeobot(threading.Thread):
 		if args[1] == "PRIVMSG":
 			# print pretty output
 			msg = IRCMessage(line)
-			self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" :"+msg.content + termcode("ENDC"))
+			self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" : "+msg.content + termcode("ENDC"))
 			contentParams = msg.content.split()
 			user = IRCUser(args[0])
 			# checking for URLs
