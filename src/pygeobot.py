@@ -145,6 +145,7 @@ class pygeobot(threading.Thread):
 	# parse messages from IRC server
 	def parse (self, line):
 		line.strip()
+		line = line.decode('utf-8')
 		self.debugPrint (line)
 		args = line.split()
 		try: 
@@ -212,6 +213,7 @@ class pygeobot(threading.Thread):
 		# remove all colory things from string
 		#\033[%sm
 		string = re.sub (r'\033\[\d*m', '', string)
+		string = re.sub (r'\002\[\d*m', '', string)
 		try:
 			self.log_file.write (string + "\n")
 			self.log_file.flush()
