@@ -144,7 +144,8 @@ class pygeobot(threading.Thread):
 
 	# parse messages from IRC server
 	def parse (self, line):
-		self.debugPrint (line[:-1])
+		line.strip()
+		self.debugPrint (line)
 		args = line.split()
 		try: 
 			if int(args[1]):
