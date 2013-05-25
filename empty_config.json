@@ -1,0 +1,13 @@
+{
+    "ircServerHost": "irc.someserver.net", 
+    "ircServerPort": "6667", 
+    "nickname": "blehNick", 
+    "realname": "Py Geo Bot (http://bit.ly/12S9zlD)",
+    "username": "pygeobot",
+    "debug" : false,
+    "channels" : [
+    	"#blehchan"
+    ],
+    "log" : "log.txt",
+    "auth" : "PRIVMSG NickServ :IDENTIFY [username] [password]"
+}

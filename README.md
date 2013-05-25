@@ -12,10 +12,14 @@ Main features
   - Grabbing Twitter link (work is in progress)
 * This yet.
 
-Configuring
------------
+Configuration
+-------------
 
-If in any case you want to change configuration of bot you must change **config.json**, or you can change source code of **main.py**
+If in any case you want to change configuration of bot you must change **config.json**, or you can change source code of **main.py**. 
+For quick configuring 
+- fill fields in `empty_config.json`
+- rename it to `config.json`
+- and run 
 
 ### Configuration keys
 - `ircServerHost` - **IP** or **hostname** of *IRC Server*
@@ -27,9 +31,15 @@ If in any case you want to change configuration of bot you must change **config.
 - `debug` - boolean of debug output or no
 - `channels` - JSON array, contains channels that bot must join
 - `log` - specifies log file's name
-- `auth` - message that bot will send when it will connect and join all channels (i.e. `PRIVMSG NickServ IDENTIFY bleh`)
+- `auth` - message that bot will send when it will connect and join all channels (i.e. `PRIVMSG NickServ :IDENTIFY bleh`)
+
+Starting bot
+------------
+To start bot
+- make sure bot starting script is executable, if its not do `chmod +x start.sh`
+- just run it `./start.sh`
 
 Thanks to
 ---------
 
-My "friends" for finding bugs through making **stupid** jokes on me and [blandflakes](blandflakes) for contributing,
+My "friends" for finding bugs through making **stupid** jokes on me and [blandflakes](blandflakes) for contributing.
