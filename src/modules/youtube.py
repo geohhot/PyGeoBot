@@ -21,14 +21,14 @@ class YouTubeModule(module.Module):
 			url = match.group()
 			# now its ok, so at first get video id
 			long_url_re = re.compile ("(\?|&)v=[-\w]*")
-			short_url_re = re.compile ("(youtu.be/[-\w]*)")
+			short_url_re = re.compile ("youtu.be/[-\w]*")
 			vid = ""
 			ml = long_url_re.search(url)
-			ms = long_url_re.search(url)
+			ms = short_url_re.search(url)
 			if ml:
 				vid = ml.group()[3:]
 			elif ms:
-				vid = ms.group()[10:]
+				vid = ms.group()[9:]
 			else:
 				#print "OOps!"
 				return

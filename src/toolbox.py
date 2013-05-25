@@ -125,4 +125,12 @@ def is_proper_url(url):
 # youtube regex - from stak overflow
 def is_youtube_url (url):
 	youtube_re = re.compile(r'(https?://)?(www\.)?youtube\.(com|nl)/watch\?v=([-\w]+)')
-	return youtube_re.match (url)
+	youtube_short_re = re.compile("(https?://)?(www\.)?youtu\.be/[-\w]+")
+	long_match = youtube_re.match (url)
+	if long_match:
+		return long_match
+	short_match = youtube_short_re.match (url)
+	if short_match:
+		return short_match
+	else:
+		return False
