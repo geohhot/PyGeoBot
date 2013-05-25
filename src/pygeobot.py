@@ -11,7 +11,7 @@ import socket
 import signal
 import sys
 sys.path.append ("./src/modules/")
-import requests
+import requests, re, datetime
 from irc import IRCMessage, IRCUser
 import url
 
@@ -27,7 +27,8 @@ class pygeobot(threading.Thread):
 	    "realname": "",
 	    "username": "",
 	    "debug" : False,
-	    "channels" : []
+	    "channels" : [],
+	    "log" : ""
 	}
 
 
@@ -45,7 +46,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = []):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt"):
 		threading.Thread.__init__ (self)
 		self._stop = threading.Event()
 		# adding keyboardInterruptHandler
@@ -65,7 +66,8 @@ class pygeobot(threading.Thread):
 					'realname' : realname,
 					'nickname' : nickname,
 					'debug' : debug,
-					'channels' : channels
+					'channels' : channels,
+					'log' : log
 				}
 		else:
 			# load configuration from config file
@@ -75,19 +77,25 @@ class pygeobot(threading.Thread):
 			except IOError:
 				toolbox.die ("Unable to read config file.\n>Make sure there is file named: '"+config+"'")
 
+		# open config file
+		if self.config['log']:
+			self.log_file = open (self.config['log'], "w")
+			self.log_file.write ("Log started at %s.\n" % datetime.datetime.now().strftime("%I:%M %p on %B %d, %Y"))
+			self.log_file.flush()
+
 	# connect function
 	"""
 		Must connect on new thread, IO streams must be stored in self
 	"""
 	def connect (self):
 		# check for config to be ok
-		print (termcode("GREEN") + "================================================")
+		self.log (termcode("GREEN") + "================================================")
 		try:
 			ircServerPort = int (self.config['ircServerPort'])
 		except ValueError:
 			toolbox.die ("Error in congi file ("+self.configFileName+"): ircServerPort must be type of integer")
 		# check if server is ok	
-		print("Checking for server...")
+		self.log ("Checking for server...")
 		ircServerIP = ""
 		try:
 			ircServerIP = socket.gethostbyname(self.config['ircServerHost'])
@@ -96,8 +104,8 @@ class pygeobot(threading.Thread):
 		except KeyError:
 			toolbox.die ("Not enough parameters given in config file. [" + self.configFileName + "]")
 		# open socket to irc Server
-		print("Semms Ok. Connecting: "+self.config['ircServerHost'] + " [" + self.config['ircServerPort'] + "]")
-		print ( "================================================"  + termcode("ENDC"))
+		self.log ("Semms Ok. Connecting: "+self.config['ircServerHost'] + " [" + self.config['ircServerPort'] + "]")
+		self.log ( "================================================"  + termcode("ENDC"))
 		self.config['ircServerIP'] = ircServerIP
 		self.status = 1
 		self.start()
@@ -192,6 +200,14 @@ class pygeobot(threading.Thread):
 	# loging messages to terminal ( and to log file if defined)
 	def log (self, string):
 		print (string)
+		# remove all colory things from string
+		#\033[%sm
+		string = re.sub (r'\033\[\d*m', '', string)
+		try:
+			self.log_file.write (string + "\n")
+			self.log_file.flush()
+		except Exception:
+			pass
 
 	# join function
 	def join (self, *channels):
