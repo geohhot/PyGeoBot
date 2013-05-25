@@ -192,6 +192,8 @@ class pygeobot(threading.Thread):
 	# raw send to IRC socket
 	def send (self, string):
 		try:
+			# Remove non-space whitespace
+			string = re.sub(r'([\r\n\t])', '', string)
 			self.ircSock.send(string + "\n\r")
 			debugPrint ("[SENT]" + string)
 		except NameError:
