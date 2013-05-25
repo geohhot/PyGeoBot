@@ -14,7 +14,7 @@ class YouTubeModule(module.Module):
 		self.message - should contain youtube URL, so this module will parse URL
 	"""
 	def run (self):
-		print "YouTube module has started."
+		#print "YouTube module has started."
 		# double check if URL is fine ?
 		match = toolbox.is_youtube_url(self.message.content)
 		if match:
@@ -33,7 +33,7 @@ class YouTubeModule(module.Module):
 				#print "OOps!"
 				return
 			# then do GET request
-			print "vid: " + vid
+			#print "vid: " + vid
 			data = {
 				'alt' : 'json'
 			}
