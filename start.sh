@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # start bot
-python ./main.py
+python .src/main.py
