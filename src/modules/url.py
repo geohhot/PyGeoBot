@@ -29,8 +29,9 @@ class URLModule(module.Module):
 						resp = requests.get(url)
 						# print it
 						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
+						# Remove non-space whitespace
+						title = re.sub(r'([\r\n\t])', '', title)
 						# send it back
-						title = re.sub (r'([^ ]&\s)', '', title)
 						if title:
 							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:
