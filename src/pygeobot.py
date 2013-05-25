@@ -130,13 +130,13 @@ class pygeobot(threading.Thread):
 			if self.parse (line):
 				break
 
-		# join channels (wip)
-		for chan in self.config["channels"]:
-			self.send ("JOIN "+chan)
-
 		# send auth message
 		if self.config['auth']:
 			self.send (self.config['auth'])
+
+		# join channels (wip)
+		for chan in self.config["channels"]:
+			self.send ("JOIN "+chan)
 
 		while True:
 			line = self.ircSock.recv(2048)
@@ -162,7 +162,7 @@ class pygeobot(threading.Thread):
 		except ValueError:
 			pass
 		if args[1] == "NOTICE":
-			msg = line[line.rfind(":")+1:-1]
+			msg = line[line.rfind("NOTICE"):-1]
 			self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
 		if args[1] == "MODE":
 			msg = line[line.find("MODE"):]
