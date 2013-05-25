@@ -19,6 +19,8 @@ class Module (threading.Thread):
 	def run (self):
 		pass
 	def send (self, line):
+		# Remove non-space whitespace
+		line = re.sub(r'([\r\n\t])', '', line)
 		self.ircSock.send (line + "\r\n")
 	def pm (self, recipient, content):
 		self.send ("PRIVMSG " + recipient + " :"+content)
