@@ -28,7 +28,8 @@ class pygeobot(threading.Thread):
 	    "username": "",
 	    "debug" : False,
 	    "channels" : [],
-	    "log" : ""
+	    "log" : "",
+	    'auth' : ''
 	}
 
 
@@ -46,7 +47,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt"):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = ""):
 		threading.Thread.__init__ (self)
 		self._stop = threading.Event()
 		# adding keyboardInterruptHandler
@@ -67,7 +68,8 @@ class pygeobot(threading.Thread):
 					'nickname' : nickname,
 					'debug' : debug,
 					'channels' : channels,
-					'log' : log
+					'log' : log,
+					'auth' : auth
 				}
 		else:
 			# load configuration from config file
@@ -131,6 +133,10 @@ class pygeobot(threading.Thread):
 		# join channels (wip)
 		for chan in self.config["channels"]:
 			self.send ("JOIN "+chan)
+
+		# send auth message
+		if self.config['auth']:
+			self.send (self.config['auth'])
 
 		while True:
 			line = self.ircSock.recv(2048)
