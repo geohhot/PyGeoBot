@@ -8,7 +8,7 @@ Main features
 
 * Link recognition
   - Grabbing link titles
-  - Grabbing some info it's [YouTube](http://www.youtube.com) link
+  - Grabbing some info if it's [YouTube](http://www.youtube.com) link
   - Grabbing Twitter link (work is in progress)
 * This yet.
 
