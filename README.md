@@ -32,6 +32,7 @@ For quick configuring
 - `channels` - JSON array, contains channels that bot must join
 - `log` - specifies log file's name
 - `auth` - message that bot will send when it will connect and join all channels (i.e. `PRIVMSG NickServ :IDENTIFY bleh`)
+- `twitter` - type of **JSONObject**, should contain `consumer` object, which must contain `key` and `secret`. Perhaps you need to register application on [Twitter](https://dev.twitter.com/apps) to make bot's twitter module work.
 
 Starting bot
 ------------
