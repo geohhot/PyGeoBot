@@ -16,6 +16,30 @@ class TwitterModule (module.Module):
 	TWITTER_BEARER_TOKEN = "https://api.twitter.com/oauth2/token"
 	TWITTER_REST_STATUS = 'https://api.twitter.com/1.1/statuses/show.json'
 
+	# will return access token using credentials
+	def get_access_token (self):
+		# step1:  get credentials
+		credentials = self.data['consumer']
+		#print credentials
+		credentials_encoded = base64.b64encode (credentials['key'].encode("ascii") + ":" + credentials['secret'].encode("ascii"))
+		# step2: obtain a bearer token
+		headers = {
+			'Authorization' : 'Basic '+credentials_encoded,
+			'Content-Type' : 'application/x-www-form-urlencoded;charset=UTF-8'
+		}
+		data = {
+			'grant_type' : 'client_credentials'
+		}
+		bearer = requests.post (self.TWITTER_BEARER_TOKEN, headers=headers, data=data)
+		bearer_json = bearer.json()
+		# check if its ok
+		if bearer.status_code == 200: #everything is ok
+			access_token = bearer_json['access_token']
+		else:
+			access_token = "" #empty if there is an error
+			raise Exception
+		return access_token
+
 	def run(self):
 		# check if we have access token ?
 		access_token = ""
@@ -23,24 +47,7 @@ class TwitterModule (module.Module):
 			access_token = self.data['access_token']
 		except KeyError:
 			# no acces token :/ gota make one
-			# step1:  get credentials
-			credentials = self.data['consumer']
-			credentials_encoded = base64.b64encode (credentials['key'].encode("ascii") + ":" + credentials['secret'].encode("ascii"))
-			# step2: obtain a bearer token
-			headers = {
-				'Authorization' : 'Basic '+credentials_encoded,
-				'Content-Type' : 'application/x-www-form-urlencoded;charset=UTF-8'
-			}
-			data = {
-				'grant_type' : 'client_credentials'
-			}
-			bearer = requests.post (self.TWITTER_BEARER_TOKEN, headers=headers, data=data)
-			bearer_json = bearer.json()
-			# check if its ok
-			if bearer.status_code == 200: #everything is ok
-				access_token = bearer_json['access_token']
-			else:
-				access_token = "" #empty if there is an error
+			access_token = self.get_access_token()
 
 		# now we have access_token
 		if not access_token:

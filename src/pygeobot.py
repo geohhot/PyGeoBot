@@ -14,6 +14,7 @@ sys.path.append ("./src/modules/")
 import requests, re, datetime
 from irc import IRCMessage, IRCUser
 import url
+import twitter as twitterModule
 
 class pygeobot(threading.Thread):
 
@@ -86,6 +87,17 @@ class pygeobot(threading.Thread):
 			self.log_file = open (self.config['log'], "w")
 			self.log_file.write ("Log started at %s.\n" % datetime.datetime.now().strftime("%I:%M %p on %B %d, %Y"))
 			self.log_file.flush()
+
+		# get access_token from Twitter
+		try:
+			print termcode("AUQA") + "Getting Twitter access_token ..." + termcode("ENDC")
+			tm = twitterModule.TwitterModule(data=self.config['twitter'])
+			access_token = tm.get_access_token ()
+			print termcode("AUQA") + "Done." + termcode("ENDC")
+			self.config['twitter']['access_token'] = access_token
+		except Exception:
+			self.log( termcode("LIGHT_RED_BG") + "Some troubles with getting access_token."  + termcode("ENDC"))
+			pass
 
 	# connect function
 	"""
@@ -282,6 +294,7 @@ class pygeobot(threading.Thread):
 	def keyboardInterruptHandler (self, signal, frame):
 		print "\nInterrupted! Closing connections. Quiting..." + toolbox.termcode("ENDC")
 		try:
+			self.ircSock.send ("QUIT :~_~\r\n")
 			self.ircSock.close()
 		except AttributeError:
 			pass
