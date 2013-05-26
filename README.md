@@ -38,8 +38,8 @@ Starting bot
 ------------
 To start bot
 - make sure you have watched and did steps of configuration ([here](https://github.com/geohhot/PyGeoBot#configuration-keys))
-- make sure bot starting script is executable, if its not do `chmod +x start.sh`
-- just run it `./start.sh`
+- Choose if you want to see its output, or you just want it to start in new process and let it live there (i.e. if you're about to host bot somewhere) do `./start.sh`, and whenever you will want to stop it do `./stop.sh` 
+- Or if you want to see bot's *pretty* output, just do `python src/main.py` (from repo's root directory)
 
 Thanks to
 ---------
