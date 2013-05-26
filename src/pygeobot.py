@@ -161,7 +161,7 @@ class pygeobot(threading.Thread):
 	# parse messages from IRC server
 	def parse (self, line):
 		line.strip()
-		line = line.decode('utf-8')
+		#line = line.decode('utf-8')
 		self.debugPrint (line)
 		args = line.split()
 		try:
@@ -228,16 +228,23 @@ class pygeobot(threading.Thread):
 
 	# loging messages to terminal ( and to log file if defined)
 	def log (self, string):
+		string = self.remove_annoying_chars(string)
+		if not string:
+			return
 		print (string)
 		# remove all colory things from string
 		#\033[%sm
 		string = re.sub (r'\033\[\d*m', '', string)
-		string = re.sub (r'\002\[\d*m', '', string)
 		try:
 			self.log_file.write (string + "\n")
 			self.log_file.flush()
 		except Exception:
 			pass
+
+	# removes "annoying chars" like 0x02
+	def remove_annoying_chars (self, line):
+	    line = re.sub (r"[\x02]", "", line)
+	    return line
 
 	# join function
 	def join (self, *channels):
