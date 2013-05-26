@@ -47,7 +47,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = ""):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}):
 		threading.Thread.__init__ (self)
 		self.buffer = ""
 		self._stop = threading.Event()
@@ -70,7 +70,8 @@ class pygeobot(threading.Thread):
 					'debug' : debug,
 					'channels' : channels,
 					'log' : log,
-					'auth' : auth
+					'auth' : auth,
+					'twitter' : twitter
 				}
 		else:
 			# load configuration from config file
@@ -191,7 +192,7 @@ class pygeobot(threading.Thread):
 				contentParams = msg.content.split()
 				user = IRCUser(args[0])
 				# checking for URLs
-				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock)
+				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
 				url_module.start()
 				# checking for commands
 				if (contentParams[0] == ">hello"):
@@ -279,10 +280,13 @@ class pygeobot(threading.Thread):
 
 	# will quit when KeyboardInterrupt error will be thrown
 	def keyboardInterruptHandler (self, signal, frame):
-		print "Interrupted! Closing connections. Quiting..."
+		print "\nInterrupted! Closing connections. Quiting..." + toolbox.termcode("ENDC")
 		try:
 			self.ircSock.close()
-		except NameError:
+		except AttributeError:
 			pass
-		self._stop.set()
-		sys.exit(0)
+		try:
+			self._stop.set()
+			sys.exit(0)
+		except Exception:
+			pass

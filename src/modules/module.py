@@ -11,11 +11,12 @@ class Module (threading.Thread):
 		message - message that was sent from IRC server
 		ircSock - type is socket, socket in what result must be printed
 	"""
-	def __init__ (self, sender='', message='', ircSock=''):
+	def __init__ (self, sender='', message='', ircSock='', data={}):
 		threading.Thread.__init__(self)
 		self.message = message
 		self.sender = sender
 		self.ircSock = ircSock
+		self.data = data
 	def run (self):
 		pass
 	def send (self, line):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import module
-import youtube
+import youtube, twitter # modules
 from irc import IRCMessage, IRCUser
 import sys
 sys.path.append ("../")
@@ -22,6 +22,16 @@ class URLModule(module.Module):
 					new_message.content = match.group()
 					youtube_module = youtube.YouTubeModule(sender=self.sender, message=new_message, ircSock=self.ircSock)
 					youtube_module.run()
+					continue
+				match = toolbox.is_twitter_url (url)
+				if match:
+					# twitter url found
+					# get id, and give it to twitter module
+					post_id = re.search (r'status/\d+', url).group()[7:]
+					new_message = self.message
+					new_message.content = post_id
+					twitter_module = twitter.TwitterModule(sender=self.sender, message=new_message, ircSock=self.ircSock, data=self.data)
+					twitter_module.run()
 					continue
 				if toolbox.is_proper_url (url):
 					#print "Found url: "+url

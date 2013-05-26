@@ -98,7 +98,8 @@ IRC_COLOR = {
 	"DARK_MAGNETA" : 74,
 	"DARK_PURPLE_RED" : 75,
 
-	"GREENISH" : 73
+	"GREENISH" : 73,
+	"RESET" : 0
 }
 
 def irccode (color):
@@ -108,8 +109,21 @@ def irccode (color):
 	except KeyError:
 		return ""
 
+# youtube regex - from stak overflow
+def is_youtube_url (url):
+	youtube_re = re.compile(r'(https?://)?(www\.)?youtube\.(com|nl)/watch\?v=([-\w]+)')
+	youtube_short_re = re.compile("(https?://)?(www\.)?youtu\.be/[-\w]+")
+	long_match = youtube_re.match (url)
+	if long_match:
+		return long_match
+	short_match = youtube_short_re.match (url)
+	if short_match:
+		return short_match
+	else:
+		return False
+
 # from stak overflow: "django url validation regex"
-def is_proper_url(url):
+def is_proper_url (url):
 	regex = re.compile(
         r'^(?:http)s?://' # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
@@ -122,15 +136,19 @@ def is_proper_url(url):
 	else:
 		return False
 
-# youtube regex - from stak overflow
-def is_youtube_url (url):
-	youtube_re = re.compile(r'(https?://)?(www\.)?youtube\.(com|nl)/watch\?v=([-\w]+)')
-	youtube_short_re = re.compile("(https?://)?(www\.)?youtu\.be/[-\w]+")
-	long_match = youtube_re.match (url)
-	if long_match:
-		return long_match
-	short_match = youtube_short_re.match (url)
-	if short_match:
-		return short_match
+# checks if given URL is twitters one
+def is_twitter_url (url):
+	twitter_url = re.compile(
+		r'(https?://)?'
+		r'(www\.)?'
+		r'twitter\.com/'
+		r'[a-zA-Z0-9]+' # username
+		r'/'
+		r'status/'
+		r'\d+' # status id,
+		,re.IGNORECASE)
+	m = twitter_url.match (url)
+	if m:
+		return m
 	else:
 		return False
