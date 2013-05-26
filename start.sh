@@ -1,4 +1,9 @@
 #!/bin/bash
 
 # start bot
-python ./src/main.py
+eval "(python ./src/main.py 1> /dev/null) &"
+pid=$!
+
+echo "Bot has started."
+
+echo $pid > ".pid"
