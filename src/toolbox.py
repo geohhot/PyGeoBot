@@ -99,13 +99,16 @@ IRC_COLOR = {
 	"DARK_PURPLE_RED" : 75,
 
 	"GREENISH" : 73,
-	"RESET" : 0
+	"RESET" : 0,
+	"INVERT" : 0
 }
 
 def irccode (color):
 	try:
 		if color == "RESET":
 			return  ("%s") % ('\x03')
+		elif color == "INVERT":
+			return "\x10"
 		else:
 			result = ("%c%i") % (0x03, IRC_COLOR[color])
 			return result

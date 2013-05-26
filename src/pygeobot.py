@@ -84,7 +84,7 @@ class pygeobot(threading.Thread):
 
 		# open config file
 		if self.config['log']:
-			self.log_file = open (self.config['log'], "w")
+			self.log_file = open (self.config['log'], "a")
 			self.log_file.write ("Log started at %s.\n" % datetime.datetime.now().strftime("%I:%M %p on %B %d, %Y"))
 			self.log_file.flush()
 
