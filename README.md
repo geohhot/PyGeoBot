@@ -37,6 +37,7 @@ For quick configuring
 Starting bot
 ------------
 To start bot
+- make sure you have watched and did steps of configuration ([here](https://github.com/geohhot/PyGeoBot#configuration-keys))
 - make sure bot starting script is executable, if its not do `chmod +x start.sh`
 - just run it `./start.sh`
 
