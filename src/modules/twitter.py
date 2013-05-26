@@ -67,7 +67,7 @@ class TwitterModule (module.Module):
 				tweet = requests.get (self.TWITTER_REST_STATUS, headers=auth, params=params)
 				tweet = tweet.json()
 				#print tweet
-				reply = irccode('MAGNETA') + tweet['user']['name'] + ": " + irccode('RESET') + tweet['text']
+				reply = irccode('MAGNETA') + tweet['user']['name'] + irccode("GREENISH") + " (" + tweet['user']['screen_name'] + ")" + ": " + irccode('RESET') + tweet['text']
 				#print reply
 				self.pm (self.message.get_reply_to(), reply)
 			except Exception:

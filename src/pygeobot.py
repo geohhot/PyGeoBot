@@ -168,7 +168,7 @@ class pygeobot(threading.Thread):
 		else:
 			line = self.ircSock.recv(4048)
 			self.buffer += line
-			return self.recv()
+			return ""
 
 
 	# parse messages from IRC server
