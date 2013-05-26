@@ -9,7 +9,7 @@ Main features
 * Link recognition
   - Grabbing link titles
   - Grabbing some info if it's [YouTube](http://www.youtube.com) link
-  - Grabbing Twitter link (work is in progress)
+  - Grabbing [Twitter](http://www.twitter.com)'s status links
 * This yet.
 
 Configuration
