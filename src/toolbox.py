@@ -104,8 +104,11 @@ IRC_COLOR = {
 
 def irccode (color):
 	try:
-		result = ("%c%i") % (0x03, IRC_COLOR[color])
-		return result
+		if color == "RESET":
+			return  ("%s") % ('\x03')
+		else:
+			result = ("%c%i") % (0x03, IRC_COLOR[color])
+			return result
 	except KeyError:
 		return ""
 
