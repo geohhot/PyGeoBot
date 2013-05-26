@@ -9,5 +9,11 @@
     	"#blehchan"
     ],
     "log" : "log.txt",
-    "auth" : "PRIVMSG NickServ :IDENTIFY [username] [password]"
+    "auth" : "PRIVMSG NickServ :IDENTIFY [username] [password]",
+    "twitter" : {
+        "consumer" : {
+            "key" : "<your key here>",
+            "secret" : "<your secret here>"
+        }
+    }
 }
