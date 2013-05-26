@@ -288,7 +288,7 @@ class pygeobot(threading.Thread):
 	# prints to screen if debuging is active
 	def debugPrint (self, msg):
 		if self.isDebuging():
-			print msg
+			self.log(msg)
 
 	# will quit when KeyboardInterrupt error will be thrown
 	def keyboardInterruptHandler (self, signal, frame):
