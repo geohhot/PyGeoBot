@@ -8,6 +8,9 @@ import toolbox
 from toolbox import irccode
 import requests, re
 
+from HTMLParser import HTMLParser
+from htmlentitydefs import name2codepoint
+
 class URLModule(module.Module):
 	def run (self):
 		if self.message.content:
@@ -38,11 +41,22 @@ class URLModule(module.Module):
 					try:
 						# get URL's title
 						resp = requests.get(url)
-						# print it
-						title = resp.text[resp.text.find("<title>")+7:resp.text.find("</title>")]
+						found = resp.text.find("<title>")
+						title = resp.text[resp.text.find("<title>"):resp.text.find("</title>")+8]
+						#print title
+						# parse it
+						titleParser = TitleParser()
+						titleParser.feed(title)
+						title = titleParser.data
+						#print title
 						# send it back
-						if title:
+						if title and found != -1:
 							#print title
 							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:
 						pass
+
+class TitleParser (HTMLParser):
+	data = ""
+	def handle_data(self, data):
+		self.data = data
