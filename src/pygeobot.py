@@ -256,6 +256,8 @@ class pygeobot(threading.Thread):
 		# remove all colory things from string
 		#\033[%sm
 		string = re.sub (r'\033\[\d*m', '', string)
+		# add time
+		string = datetime.datetime.now().strftime("%I:%M ") + string
 		try:
 			self.log_file.write (string + "\n")
 			self.log_file.flush()
