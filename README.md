@@ -41,6 +41,10 @@ To start bot
 - Choose if you want to see its output, or you just want it to start in new process and let it live there (i.e. if you're about to host bot somewhere) do `./start.sh`, and whenever you will want to stop it do `./stop.sh` 
 - Or if you want to see bot's *pretty* output, just do `python src/main.py` (from repo's root directory)
 
+LICENSE
+-------
+This bot is under [WTFPL](https://github.com/geohhot/PyGeoBot/blob/master/LICENSE) license. Read more about it [here](http://www.wtfpl.net/about/)
+
 Thanks to
 ---------
 
