@@ -85,7 +85,7 @@ class pygeobot(threading.Thread):
 		# open config file
 		if self.config['log']:
 			self.log_file = open (self.config['log'], "a")
-			self.log_file.write ("Log started at %s.\n" % datetime.datetime.now().strftime("%I:%M %p on %B %d, %Y"))
+			self.log_file.write ("Log started at %s.\n" % datetime.datetime.now().strftime("%H:%M:%S %p on %B %d, %Y"))
 			self.log_file.flush()
 
 		# get access_token from Twitter
@@ -257,7 +257,7 @@ class pygeobot(threading.Thread):
 		#\033[%sm
 		string = re.sub (r'\033\[\d*m', '', string)
 		# add time
-		string = datetime.datetime.now().strftime("%I:%M ") + string
+		string = datetime.datetime.now().strftime("%H:%M:%S ") + string
 		try:
 			self.log_file.write (string + "\n")
 			self.log_file.flush()
