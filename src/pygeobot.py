@@ -164,6 +164,7 @@ class pygeobot(threading.Thread):
 			# contains line breaks
 			res = self.buffer[:m.start()+1]
 			self.buffer = self.buffer[m.end()+1:]
+			res = re.sub("[\x02\x01]", "", res)
 			return res
 		else:
 			line = self.ircSock.recv(4048)
@@ -195,33 +196,38 @@ class pygeobot(threading.Thread):
 			if args[1] == "NOTICE":
 				msg = line[line.rfind("NOTICE"):-1]
 				self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
-			if args[1] == "MODE":
+			elif args[1] == "MODE":
 				msg = line[line.find("MODE"):]
 				self.log (termcode("DARK_YELLOW") + msg + termcode("ENDC"))
-			if args[1] == "PRIVMSG":
+			elif args[1] == "PRIVMSG":
 				# print pretty output
 				msg = IRCMessage(line)
-				self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" : "+msg.content + termcode("ENDC"))
 				contentParams = msg.content.split()
 				user = IRCUser(args[0])
 				# checking for URLs
 				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
 				url_module.start()
 				# checking for commands
-				if (contentParams[0] == ">hello"):
-					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
-			if args[0] == "PING":
+				if (contentParams[0] == "ACTION"):
+					# action message, aka /me
+					self.log (termcode('BOLD') + "* " + msg.author + termcode("ENDC") + " " + termcode("BLUE") + msg.recipient + " " + termcode("YELLOW") + (" ".join (contentParams[1:])) + termcode("ENDC") )
+				elif contentParams[0] == "PING":
+					# ping message
+					self.send ("PRIVMSG "+msg.author+" :PONG "+(" ".join (contentParams[1:])))
+				else:
+					self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" : "+msg.content + termcode("ENDC"))
+			elif args[0] == "PING":
 				# ping message from server
 				self.send ("PONG "+line[line.rfind(":"):])
-			if args[1] == "JOIN":
+			elif args[1] == "JOIN":
 				# join message
 				self.log (self.notification_string + termcode("BOLD") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
-			if args[1] == "PART":
+			elif args[1] == "PART":
 				# someone left channel
 				self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
-			if args[1] == "QUIT":
+			elif args[1] == "QUIT":
 				# quit message
-				self.log (self.notification_string + termcode("LIGHT_RED_BG") + sender.nick + termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") +sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has quit " + termcode("ENDC") )
+				self.log (self.notification_string + termcode("LIGHT_RED_BG") + sender.nick + termcode("ENDC") + termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") +sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has quit " + termcode("ENDC") )
 		except IndexError:
 			pass
 
