@@ -30,7 +30,8 @@ class pygeobot(threading.Thread):
 	    "debug" : False,
 	    "channels" : [],
 	    "log" : "",
-	    'auth' : ''
+	    'auth' : '',
+	    'password' : ''
 	}
 
 
@@ -48,7 +49,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}, password=""):
 		threading.Thread.__init__ (self)
 		self.buffer = ""
 		self._stop = threading.Event()
@@ -61,6 +62,8 @@ class pygeobot(threading.Thread):
 				toolbox.die("Non config file/ircServer is defined. Please define one of those")
 			else:
 				# got all information to connect, write all info to self
+				if not password:
+					toolbox.die ("Err. You have forgot to add password.")
 				self.config = {
 					'ircServerHost' : ircServerHost,
 					'ircServerPassword' : ircServerPassword,
@@ -72,13 +75,21 @@ class pygeobot(threading.Thread):
 					'channels' : channels,
 					'log' : log,
 					'auth' : auth,
-					'twitter' : twitter
+					'twitter' : twitter,
+					'password' : password
 				}
 		else:
 			# load configuration from config file
 			try: 
 				self.config = toolbox.loadJSON(config)
 				self.configFileName = config
+				# check for some fields
+				try:
+					if not (self.config['nickname'] and self.config['ircServerHost'] and self.config['password'] and self.config['realname'] ):
+						toolbox.die ("Not enough parameters.")
+				except KeyError:
+					toolbox.die ("Not enough parameters.")
+
 			except IOError:
 				toolbox.die ("Unable to read config file.\n>Make sure there is file named: '"+config+"'")
 
@@ -204,9 +215,6 @@ class pygeobot(threading.Thread):
 				msg = IRCMessage(line)
 				contentParams = msg.content.split()
 				user = IRCUser(args[0])
-				# checking for URLs
-				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
-				url_module.start()
 				# checking for commands
 				if (contentParams[0] == "ACTION"):
 					# action message, aka /me
@@ -216,6 +224,44 @@ class pygeobot(threading.Thread):
 					self.send ("PRIVMSG "+msg.author+" :PONG "+(" ".join (contentParams[1:])))
 				else:
 					self.log (termcode("BOLD") + termcode('GREEN') + "<"+msg.author+"> "+ termcode ('ENDC') + termcode("BLUE") + msg.recipient + termcode("YELLOW") +" : "+msg.content + termcode("ENDC"))
+
+				# checking for URLs
+				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
+				url_module.start()
+
+				commandre = "((hey)|(oh))? ("+self.config['nickname'] + "|" + self.config['username'] + ")"
+				command = re.compile(commandre)
+				s = command.search (msg.content.lower())
+				if s:
+					#print "Command found."
+					# oh seems someone is trying to say something to bot
+					command = msg.content[s.end():]
+					#print command
+					commandParams = command.split()
+					#print commandParams
+					#print len (commandParams)
+					if len(commandParams) == 0:
+						# only two params
+						self.pm (msg.get_reply_to(), "Bleh. What ?")
+					elif len(commandParams) > 0:
+						# there is something
+						# check for commands
+						if commandParams[0].lower() == "help":
+							self.pm (msg.get_reply_to(), "Meh no.")
+						elif commandParams[0].lower() == "die":
+							# die command
+							if len (commandParams) <= 1:
+								self.pm (msg.get_reply_to(), "Hm.. password ?")
+							else:
+								if commandParams[1] == self.config['password']:
+									# password matched
+									self.pm (msg.get_reply_to(), "Oh.. Shutting down...")
+									self.send ('QUIT : ~_~')
+									self._stop.set()
+									sys.exit(0)
+								else:
+									# wrong password
+									self.pm (msg.get_reply_to(), "No. Wrong password.")
 			elif args[0] == "PING":
 				# ping message from server
 				self.send ("PONG "+line[line.rfind(":"):])
