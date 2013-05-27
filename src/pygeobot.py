@@ -191,6 +191,7 @@ class pygeobot(threading.Thread):
 						self.send ("USER "+self.config['username']+ " 0 * :" + self.config['realname'])
 			except ValueError:
 				pass
+			sender = IRCUser(args[0])
 			if args[1] == "NOTICE":
 				msg = line[line.rfind("NOTICE"):-1]
 				self.log (termcode("DARK_BLUE") + msg + termcode("ENDC"))
@@ -210,16 +211,17 @@ class pygeobot(threading.Thread):
 				if (contentParams[0] == ">hello"):
 					self.pm(msg.recipient, termcode("GREEN") + " Ahalo bleh " + termcode("ENDC"))
 			if args[0] == "PING":
-				# send pong message
+				# ping message from server
 				self.send ("PONG "+line[line.rfind(":"):])
 			if args[1] == "JOIN":
 				# join message
-				who_joined = IRCUser(args[0])
-				self.log (self.notification_string +termcode("BOLD") + termcode("DARK_BLUE") + who_joined.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_joined.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
+				self.log (self.notification_string + termcode("BOLD") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
 			if args[1] == "PART":
 				# someone left channel
-				who_left = IRCUser(args[0])
-				self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + who_left.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + who_left.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
+				self.log (self.notification_string + termcode("STRIKE") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has left " + termcode("BOLD") + args[2] + termcode("ENDC"))
+			if args[1] == "QUIT":
+				# quit message
+				self.log (self.notification_string + termcode("LIGHT_RED_BG") + sender.nick + termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") +sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has quit " + termcode("ENDC") )
 		except IndexError:
 			pass
 
