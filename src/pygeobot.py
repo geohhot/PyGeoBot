@@ -290,8 +290,10 @@ class pygeobot(threading.Thread):
 	# send PRIVMSG
 	def pm (self, recipient, content):
 		msg = "PRIVMSG "+recipient+" :"+content
-		print msg
 		self.send (msg)
+		msg = ":" + self.config['nickname'] + "!" + "hostname " + msg # for making IRCMessage class's __init__ work
+		msg = IRCMessage(msg)
+		self.log (termcode("BOLD") + "<" + msg.author + ">" + termcode("ENDC") + " " + termcode("BLUE") + msg.recipient + termcode("ENDC") + " : " + termcode("YELLOW") + msg.content + termcode("ENDC"))
 
 	# loging messages to terminal ( and to log file if defined)
 	def log (self, string):
