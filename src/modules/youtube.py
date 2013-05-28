@@ -39,7 +39,7 @@ class YouTubeModule(module.Module):
 			}
 			try:
 				resp = requests.get (self.YOUTUBE_REST_API+vid, params=data)
-				print "URL: "+resp.url
+				#print "URL: "+resp.url
 				json = resp.json()
 				view_count = json['entry']['yt$statistics']['viewCount']
 				view_count = int (view_count)
@@ -58,8 +58,8 @@ class YouTubeModule(module.Module):
 				title = str(json['entry']['title']['$t'])
 				author = str(json['entry']['author'][0]['name']['$t'])
 
-				self.pm (self.message.get_reply_to(), irccode("CYAN") + "You" + irccode("DARK_RED") + "Tube: " + irccode("GREENISH") + title)
-				self.pm (self.message.get_reply_to(), irccode("MAGNETA") + "Stats: " + irccode("RED") + "Views: "+str(view_count) + irccode("GREEN") + " Rating: "+average_rating + irccode("BLUE") + " Author: "+author )
+				self.pm (self.message.get_reply_to(), irccode("INVERT") + irccode("CYAN") + "You" + irccode("DARK_RED") + "Tube: " + irccode("GREENISH") + title)
+				self.pm (self.message.get_reply_to(), irccode("INVERT") + irccode("MAGNETA") + "Stats: " + irccode("RED") + "Views: "+str(view_count) + irccode("GREEN") + " Rating: "+average_rating + irccode("BLUE") + " Author: "+author )
 			except Exception:
 				# something went wrong, could be of wrong url
 				print "Bleh fuck !"

@@ -108,7 +108,7 @@ def irccode (color):
 		if color == "RESET":
 			return  ("%s") % ('\x03')
 		elif color == "INVERT":
-			return "\x10"
+			return "\x16"
 		else:
 			result = ("%c%i") % (0x03, IRC_COLOR[color])
 			return result

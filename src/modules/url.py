@@ -52,7 +52,7 @@ class URLModule(module.Module):
 						# send it back
 						if title and found != -1:
 							#print title
-							self.pm (self.message.get_reply_to(), irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
+							self.pm (self.message.get_reply_to(), irccode("INVERT") + irccode("DARK_MAGNETA") + "Link Title: " + irccode("PURPLE") + title)
 					except Exception:
 						pass
 
