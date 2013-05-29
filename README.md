@@ -45,7 +45,7 @@ To start bot
 
 LICENSE
 -------
-This bot is under [WTFPL](https://github.com/geohhot/PyGeoBot/blob/master/LICENSE) license. Read more about it [here](http://www.wtfpl.net/about/)
+This bot is under [MIT](https://github.com/geohhot/PyGeoBot/blob/master/LICENSE) license. Read more about it [here](http://en.wikipedia.org/wiki/MIT_License)
 
 Thanks to
 ---------
