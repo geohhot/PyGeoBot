@@ -210,6 +210,13 @@ class pygeobot(threading.Thread):
 			elif args[1] == "MODE":
 				msg = line[line.find("MODE"):]
 				self.log (termcode("DARK_YELLOW") + msg + termcode("ENDC"))
+			elif args[1] == "KICK":
+				channel = args[2]
+				user = args[3]
+				comment = " ".join(args[4:])
+				messageAuthor = IRCUser(args[0])
+				msg = self.notification_string + termcode("RED") + user + termcode("GREEN") + " was " + termcode("RED") + "kicked" + termcode("GREEN") +" from " + termcode("BLUE") + channel + termcode("GREEN") + " by " + termcode("DARK_YELLOW") + messageAuthor.nick
+				self.log (msg)
 			elif args[1] == "PRIVMSG":
 				# print pretty output
 				msg = IRCMessage(line)
