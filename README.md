@@ -50,4 +50,4 @@ This bot is under [MIT](https://github.com/geohhot/PyGeoBot/blob/master/LICENSE)
 Thanks to
 ---------
 
-My "friends" for finding bugs through making **stupid** jokes on me and [blandflakes](blandflakes) for contributing.
+[blandflakes](https://github.com/blandflakes) for contributing.
