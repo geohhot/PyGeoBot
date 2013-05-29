@@ -243,7 +243,7 @@ class pygeobot(threading.Thread):
 				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
 				url_module.start()
 
-				commandre = "((hey)|(oh))? ("+self.config['nickname'] + "|" + self.config['username'] + ")"
+				commandre = "(hey)? ("+self.config['nickname'] + "|" + self.config['username'] + ")"
 				command = re.compile(commandre)
 				s = command.search (msg.content.lower())
 				if s:
@@ -256,7 +256,6 @@ class pygeobot(threading.Thread):
 					#print len (commandParams)
 					if len(commandParams) == 0:
 						# only two params
-						self.pm (msg.get_reply_to(), "Bleh. What ?")
 					elif len(commandParams) > 0:
 						# there is something
 						# check for commands
@@ -276,6 +275,12 @@ class pygeobot(threading.Thread):
 								else:
 									# wrong password
 									self.pm (msg.get_reply_to(), "No. Wrong password.")
+						elif commandParams[0].lower() == "get":
+							if len (commandParams) <= 1:
+								self.pm (msg.get_reply_to(), "Usage: hey "+self.config['nickname']+" get <command> <params>")
+							else:
+								pass
+
 			elif args[0] == "PING":
 				# ping message from server
 				self.send ("PONG "+line[line.rfind(":"):])
