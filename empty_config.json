@@ -16,5 +16,6 @@
             "secret" : "<your secret here>"
         }
     },
-    "password" : "<password here>"
+    "password" : "<password here>",
+    "autojoin_on_kick" : true
 }

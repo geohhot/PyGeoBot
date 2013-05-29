@@ -31,7 +31,8 @@ class pygeobot(threading.Thread):
 	    "channels" : [],
 	    "log" : "",
 	    'auth' : '',
-	    'password' : ''
+	    'password' : '',
+	    'autojoin_on_kick' : False
 	}
 
 
@@ -49,7 +50,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}, password=""):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}, password="", autojoin_on_kick=True):
 		threading.Thread.__init__ (self)
 		self.buffer = ""
 		self._stop = threading.Event()
@@ -76,7 +77,8 @@ class pygeobot(threading.Thread):
 					'log' : log,
 					'auth' : auth,
 					'twitter' : twitter,
-					'password' : password
+					'password' : password,
+					"autojoin_on_kick" : autojoin_on_kick
 				}
 		else:
 			# load configuration from config file
@@ -155,13 +157,15 @@ class pygeobot(threading.Thread):
 			if self.parse (line):
 				break
 
+		self.status = 2
+
 		# send auth message
 		if self.config['auth']:
 			self.send (self.config['auth'])
 
 		# join channels (wip)
 		for chan in self.config["channels"]:
-			self.send ("JOIN "+chan)
+			self.join (chan)
 
 		while True:
 			line = self.recv()
@@ -213,10 +217,13 @@ class pygeobot(threading.Thread):
 			elif args[1] == "KICK":
 				channel = args[2]
 				user = args[3]
-				comment = " ".join(args[4:])
+				comment = (" ".join(args[4:]) )[1:]
 				messageAuthor = IRCUser(args[0])
-				msg = self.notification_string + termcode("RED") + user + termcode("GREEN") + " was " + termcode("RED") + "kicked" + termcode("GREEN") +" from " + termcode("BLUE") + channel + termcode("GREEN") + " by " + termcode("DARK_YELLOW") + messageAuthor.nick
+				msg = self.notification_string + termcode("RED") + user + termcode("GREEN") + " was " + termcode("RED") + "kicked" + termcode("GREEN") +" from " + termcode("BLUE") + channel + termcode("GREEN") + " by " + termcode("DARK_YELLOW") + messageAuthor.nick + termcode("DARK_MAGENTA") + " [" + termcode("ENDC") + comment + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") 
 				self.log (msg)
+				if self.config['autojoin_on_kick']:
+					#print "Rejoining!"
+					self.join (channel)
 			elif args[1] == "PRIVMSG":
 				# print pretty output
 				msg = IRCMessage(line)
@@ -326,13 +333,19 @@ class pygeobot(threading.Thread):
 
 	# join function
 	def join (self, *channels):
-		for chan in channels:
-			# add to toJoin list
-			try: 
-				self.config["channels"].append (chan)
-			except KeyError:
-				self.config["channels"] = []
-				self.config["channels"].append (chan)
+		if self.getStatusCode() != 2:
+			# appending to list
+			for chan in channels:
+				# add to toJoin list
+				try: 
+					self.config["channels"].append (chan)
+				except KeyError:
+					self.config["channels"] = []
+					self.config["channels"].append (chan)
+		else:
+			# sending join message
+			for chan in channels:
+				self.send ("JOIN "+chan)
 
 	# part function
 	def part (self):

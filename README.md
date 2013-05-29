@@ -34,6 +34,7 @@ For quick configuring
 - `auth` - message that bot will send when it will connect and join all channels (i.e. `PRIVMSG NickServ :IDENTIFY bleh`)
 - `twitter` - type of **JSONObject**, should contain `consumer` object, which must contain `key` and `secret`. Perhaps you need to register application on [Twitter](https://dev.twitter.com/apps) to make bot's twitter module work. Or there you can add `access_token` field instead of `consumer`, and fill there Twitter's access token, that will work also.
 - `password` - password for controlling bot over **IRC**
+- `autojoin_on_kick` - true or false, join to channel when was kicked from it ?
 
 Starting bot
 ------------
