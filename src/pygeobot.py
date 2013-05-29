@@ -256,6 +256,7 @@ class pygeobot(threading.Thread):
 					#print len (commandParams)
 					if len(commandParams) == 0:
 						# only two params
+						pass
 					elif len(commandParams) > 0:
 						# there is something
 						# check for commands
