@@ -55,7 +55,9 @@ class pygeobot(threading.Thread):
 		self.buffer = ""
 		self._stop = threading.Event()
 		# adding keyboardInterruptHandler
-		signal.signal(signal.SIGINT, self.keyboardInterruptHandler)
+		for sig in (signal.SIGABRT, signal.SIGILL, signal.SIGINT, signal.SIGSEGV, signal.SIGTERM):
+			signal.signal(sig, self.keyboardInterruptHandler)
+
 		if not config:
 			# config file is not defined
 			if not ircServerHost:
@@ -377,6 +379,8 @@ class pygeobot(threading.Thread):
 	# will quit when KeyboardInterrupt error will be thrown
 	def keyboardInterruptHandler (self, signal, frame):
 		print "\nInterrupted! Closing connections. Quiting..." + toolbox.termcode("ENDC")
+		self.log ("Log closed at "+datetime.datetime.now().strftime("%H:%M:%S %p on %B %d, %Y")+"\n")
+		self.log.close()
 		try:
 			self.ircSock.send ("QUIT :~_~\r\n")
 			self.ircSock.close()
