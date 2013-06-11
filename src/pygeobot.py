@@ -139,10 +139,17 @@ class pygeobot(threading.Thread):
 		self.log ( "================================================"  + termcode("ENDC"))
 		self.config['ircServerIP'] = ircServerIP
 		self.status = 1
-		self.start()
+		self.start() # will call run() in new thread
 
 	# run function - will start on new thread when start() function will be called
 	def run (self):
+		self.init_to_server()
+
+		while True:
+			line = self.recv()
+			self.parse (line)
+
+	def init_to_server(self):
 		self.ircSock = socket.socket ()
 		self.ircSock.connect ((self.config['ircServerIP'], int (self.config['ircServerPort'])))
 		
@@ -169,10 +176,6 @@ class pygeobot(threading.Thread):
 		for chan in self.config["channels"]:
 			self.join (chan)
 
-		while True:
-			line = self.recv()
-			self.parse (line)
-
 	# recv line from server
 	def recv (self):
 		linebreak = re.compile (r'[\r\n]')
@@ -185,12 +188,19 @@ class pygeobot(threading.Thread):
 			return res
 		else:
 			line = self.ircSock.recv(4048)
+			if line == "":
+				return "BROKEN"
 			self.buffer += line
 			return ""
 
-
 	# parse messages from IRC server
 	def parse (self, line):
+		if line == "BROKEN":
+			# got empty string from server, means socket was closed
+			# try to reconnect
+			self.log ("Server dropped connection, reconnecting.")
+			self.init_to_server()
+			return 
 		line.strip()
 		#line = line.decode('utf-8')
 		self.debugPrint (line)
