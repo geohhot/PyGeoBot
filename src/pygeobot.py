@@ -255,48 +255,24 @@ class pygeobot(threading.Thread):
 				url_module = url.URLModule(sender=user, message=msg, ircSock=self.ircSock, data=self.config["twitter"]) # give twitter consumer key&secret
 				url_module.start()
 
-				commandre = "(hey)? ("+self.config['nickname'] + "|" + self.config['username'] + ")"
-				command = re.compile(commandre)
-				s = command.search (msg.content.lower())
-				if s:
-					#print "Command found."
-					# oh seems someone is trying to say something to bot
-					command = msg.content[s.end():]
-					#print command
-					commandParams = command.split()
-					#print commandParams
-					#print len (commandParams)
-					if len(commandParams) == 0:
-						# only two params
-						pass
-					elif len(commandParams) > 0:
-						# there is something
-						# check for commands
-						if commandParams[0].lower() == "help":
-							self.pm (msg.get_reply_to(), "Meh no.")
-						elif commandParams[0].lower() == "die":
-							# die command
-							if len (commandParams) <= 1:
-								self.pm (msg.get_reply_to(), "Hm.. password ?")
+				msgargs = msg.content.split()
+				if len (msgargs) > 0:
+					if msgargs[0].lower() == ">die":
+						if len (msgargs) == 1:
+							self.pm (msg.get_reply_to(), "Usage: <die> <password>")
+						elif len (msgargs) > 1:
+							passwd = msgargs[1]
+							if passwd == self.config['password']:
+								self.pm (msg.get_reply_to(), "Quiting ...")
+								self.log ("Shutdowned by "+msg.author)
+								self.log ("Log closed at "+datetime.datetime.now().strftime("%H:%M:%S %p on %B %d, %Y")+"\n")
+								sys.exit (0)
 							else:
-								if commandParams[1] == self.config['password']:
-									# password matched
-									self.pm (msg.get_reply_to(), "Oh.. Shutting down...")
-									self.send ('QUIT : ~_~')
-									self._stop.set()
-									sys.exit(0)
-								else:
-									# wrong password
-									self.pm (msg.get_reply_to(), "No. Wrong password.")
-						elif commandParams[0].lower() == "get":
-							if len (commandParams) <= 1:
-								self.pm (msg.get_reply_to(), "Usage: hey "+self.config['nickname']+" get <command> <params>")
-							else:
-								pass
+								self.pm (msg.get_reply_to(), "Wrong password.")
 
 			elif args[0] == "PING":
 				# ping message from server
-				self.send ("PONG "+line[line.rfind(":"):])
+				self.pm ("PONG "+line[line.rfind(":"):])
 			elif args[1] == "JOIN":
 				# join message
 				self.log (self.notification_string + termcode("BOLD") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
