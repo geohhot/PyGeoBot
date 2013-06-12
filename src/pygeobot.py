@@ -15,7 +15,6 @@ import requests, re, datetime
 from irc import IRCMessage, IRCUser, AdminUser
 import url
 import twitter as twitterModule
-import auth
 
 class pygeobot(threading.Thread):
 
