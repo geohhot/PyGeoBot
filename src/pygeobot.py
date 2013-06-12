@@ -12,13 +12,16 @@ import signal
 import sys
 sys.path.append ("./src/modules/")
 import requests, re, datetime
-from irc import IRCMessage, IRCUser
+from irc import IRCMessage, IRCUser, AdminUser
 import url
 import twitter as twitterModule
+import auth
 
 class pygeobot(threading.Thread):
 
 	notification_string = termcode("BLUE") + "-" + termcode("BOLD") + termcode("GREEN") + "!" + termcode("ENDC") + termcode("BLUE") + "-" + termcode("ENDC") + " "
+
+	spec_char = ">"
 
 	config = {
 	    "ircServerHost": "", 
@@ -121,6 +124,9 @@ class pygeobot(threading.Thread):
 			#print "Disabling colors .."
 			toolbox.set_irc_colors (False)
 
+		# add admins array
+		self.admins = []
+
 	# connect function
 	"""
 		Must connect on new thread, IO streams must be stored in self
@@ -192,6 +198,7 @@ class pygeobot(threading.Thread):
 			res = self.buffer[:m.start()+1]
 			self.buffer = self.buffer[m.end()+1:]
 			res = re.sub("[\x02\x01]", "", res)
+			self.debugPrint (res)
 			return res
 		else:
 			line = self.ircSock.recv(4048)
@@ -210,7 +217,6 @@ class pygeobot(threading.Thread):
 			return 
 		line.strip()
 		#line = line.decode('utf-8')
-		self.debugPrint (line)
 		args = line.split()
 		try:
 			try: 
@@ -264,18 +270,69 @@ class pygeobot(threading.Thread):
 
 				msgargs = msg.content.split()
 				if len (msgargs) > 0:
-					if msgargs[0].lower() == ">die":
-						if len (msgargs) == 1:
-							self.pm (msg.get_reply_to(), "Usage: <die> <password>")
-						elif len (msgargs) > 1:
-							passwd = msgargs[1]
-							if passwd == self.config['password']:
+					if msgargs[0].lower() == ">die" or (msg.recipient[0]!="#" and msgargs[0].lower() == "die"):
+						if len (msgargs) >= 1:
+							nick = msg.author
+							userhost = self.userhost (nick)
+							if self.is_admin (nick=nick, userhost=userhost):
 								self.pm (msg.get_reply_to(), "Quiting ...")
 								self.log ("Shutdowned by "+msg.author)
 								self.log ("Log closed at "+datetime.datetime.now().strftime("%H:%M:%S %p on %B %d, %Y")+"\n")
 								sys.exit (0)
 							else:
+								self.pm (msg.get_reply_to(), "You are not authed, see <auth> command.")
+					elif msgargs[0].lower() == ">auth" or (msg.recipient[0]!="#" and msgargs[0].lower() == "auth"):
+						if len (msgargs) == 1:
+							self.pm (msg.get_reply_to(), "Usage: <auth> <password>")
+						elif len (msgargs) > 1:
+							author = msg.author
+							userhost = self.userhost (author)
+							if self.is_admin (nick=author, userhost=userhost):
+								self.pm (msg.get_reply_to(), author+": you are admin already")
+								return
+							passwd = msgargs[1]
+							if passwd == self.config['password']:
+								# right password
+								if userhost == -1:
+									# err
+									print "Err"
+								else:
+									# add to admins list
+									self.admins.append(AdminUser(userhost=userhost, nick=author))
+									self.pm (msg.get_reply_to(), author+": you have been added to admins list")
+							else:
+								# wrong password
 								self.pm (msg.get_reply_to(), "Wrong password.")
+					elif msgargs[0].lower() == ">join" or (msg.recipient[0]!="#" and msgargs[0].lower() == "join"):
+						author = msg.author
+						userhost = self.userhost (author)
+						if self.is_admin(nick=author, userhost=userhost):
+							# admin is calling join
+							if len(msgargs) > 1:
+								# we have channels
+								ctj = msgargs[1:]
+								for chan in ctj:
+									self.join (chan)
+							else:
+								self.pm (msg.get_reply_to(), author+": Usage: <join> <channel> [channel2]")
+						else:
+							# someone else
+							self.pm (msg.get_reply_to(), "You are not authed, see <auth> command")
+					elif msgargs[0].lower() == ">part" or (msg.recipient[0]!="#" and msgargs[0].lower() == "part"):
+						author = msg.author
+						userhost = self.userhost (author)
+						if self.is_admin(nick=author, userhost=userhost):
+							# admin is calling part
+							if len(msgargs) > 1:
+								# we have channels
+								ctp = msgargs[1:]
+								for chan in ctp:
+									self.part (chan)
+							else:
+								self.pm (msg.get_reply_to(), author+": Usage: <part> <channel> [channel2]")
+						else:
+							# someone else
+							self.pm (msg.get_reply_to(), "You are not authed, see <auth> command")
 
 			elif args[0] == "PING":
 				# ping message from server
@@ -309,6 +366,29 @@ class pygeobot(threading.Thread):
 		msg = ":" + self.config['nickname'] + "!" + "hostname " + msg # for making IRCMessage class's __init__ work
 		msg = IRCMessage(msg)
 		self.log (termcode("BOLD") + "<" + msg.author + ">" + termcode("ENDC") + " " + termcode("BLUE") + msg.recipient + termcode("ENDC") + " : " + termcode("YELLOW") + msg.content + termcode("ENDC"))
+
+	# userhost command of IRC
+	def userhost (self, nick):
+		self.send ("USERHOST "+nick)
+		line = self.recv()
+		while len (line) == 0:
+			line = self.recv()
+		# now we have line
+		largs = line.split()
+		try:
+			if largs[1] == "302":
+				return largs[3][1:]
+		except KeyError:
+			return -1
+
+	# is admin (nick) - check if current user is admin
+	def is_admin (self, nick="", userhost=""):
+		if not nick and not userhost:
+			return False
+		for admin in self.admins:
+			if admin.nick == nick and admin.userhost == userhost:
+				return True
+		return False
 
 	# loging messages to terminal ( and to log file if defined)
 	def log (self, string):
@@ -349,8 +429,9 @@ class pygeobot(threading.Thread):
 				self.send ("JOIN "+chan)
 
 	# part function
-	def part (self):
-		pass
+	def part (self, *channels):
+		for chan in channels:
+			self.send ("PART "+chan)
 
 	# return status of bot (i.e. status code)
 	def getStatus (self):

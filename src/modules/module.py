@@ -19,6 +19,7 @@ class Module (threading.Thread):
 		self.sender = sender
 		self.ircSock = ircSock
 		self.data = data
+		self.buffer = ""
 	def run (self):
 		pass
 	def send (self, line):
@@ -28,4 +29,19 @@ class Module (threading.Thread):
 		self.ircSock.send (line + "\r\n")
 	def pm (self, recipient, content):
 		self.send ("PRIVMSG " + recipient + " :"+content)
+	def recv (self):
+		linebreak = re.compile (r'[\r\n]')
+		m = linebreak.search (self.buffer)
+		if m:
+			# contains line breaks
+			res = self.buffer[:m.start()+1]
+			self.buffer = self.buffer[m.end()+1:]
+			res = re.sub("[\x02\x01]", "", res)
+			return res
+		else:
+			line = self.ircSock.recv(4048)
+			if line == "":
+				return -1
+			self.buffer += line
+			return ""
 			

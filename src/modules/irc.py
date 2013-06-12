@@ -21,3 +21,10 @@ class IRCUser:
 	def __init__ (self, string):
 		self.nick = string[1:string.find("!")]
 		self.hostname = string[string.find("!")+1:]
+
+class AdminUser:
+	def __init__ (self, userhost="", nick=""):
+		if not userhost or not nick:
+			raise ValueError ("Both userhost and nick shold not be empty strings")
+		self.userhost = userhost
+		self.nick = nick
