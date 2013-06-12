@@ -23,6 +23,7 @@ class pygeobot(threading.Thread):
 	config = {
 	    "ircServerHost": "", 
 	    "ircServerPort": "",
+	    "ircColors" : False,
 	    "ircServerPassword" : "",
 	    "nickname": "", 
 	    "realname": "",
@@ -50,7 +51,7 @@ class pygeobot(threading.Thread):
 	}
 
 	# constructor
-	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}, password="", autojoin_on_kick=True):
+	def __init__(self, config='', ircServerHost = '', ircServerPort='6667', ircServerPassword='', nickname='pygeobot', realname='pygeobot', username='pygeobot', debug=False, channels = [], log="log.txt", auth = "", twitter={'consumer':{'key': '', 'secret': ''}}, password="", autojoin_on_kick=True,ircColors=False):
 		threading.Thread.__init__ (self)
 		self.buffer = ""
 		self._stop = threading.Event()
@@ -80,7 +81,8 @@ class pygeobot(threading.Thread):
 					'auth' : auth,
 					'twitter' : twitter,
 					'password' : password,
-					"autojoin_on_kick" : autojoin_on_kick
+					"autojoin_on_kick" : autojoin_on_kick,
+					"ircColors" : ircColors
 				}
 		else:
 			# load configuration from config file
@@ -113,6 +115,11 @@ class pygeobot(threading.Thread):
 		except Exception:
 			self.log( termcode("LIGHT_RED_BG") + "Some troubles with getting access_token."  + termcode("ENDC"))
 			pass
+
+		# check for IRC colors
+		if self.config['ircColors'] == False:
+			print "Disabling colors .."
+			toolbox.IRC_COLOR = {}
 
 	# connect function
 	"""

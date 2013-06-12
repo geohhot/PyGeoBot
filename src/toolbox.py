@@ -104,6 +104,8 @@ IRC_COLOR = {
 }
 
 def irccode (color):
+	if len(IRC_COLOR) == 0:
+		return ""
 	try:
 		if color == "RESET":
 			return  ("%s") % ('\x03')

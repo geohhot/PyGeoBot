@@ -25,6 +25,7 @@ For quick configuring
 - `ircServerHost` - **IP** or **hostname** of *IRC Server*
 - `ircServerPort` - *port* of *IRC Server* (6667 by default)
 - `ircServerPassword` - **password** of *IRC Server* (if password is set on it)
+- `ircColors` - **boolean** and if its *True* output in *IRC* will be colorful
 - `nicname` - *nickname* of bot
 - `realname` - **IRC** field for *realname* (by default: `Py Geo Bot (http://bit.ly/12S9zlD)`)
 - `username` - **IRC** username
