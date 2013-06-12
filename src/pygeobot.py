@@ -272,7 +272,7 @@ class pygeobot(threading.Thread):
 
 			elif args[0] == "PING":
 				# ping message from server
-				self.pm ("PONG "+line[line.rfind(":"):])
+				self.send ("PONG "+line[line.rfind(":"):])
 			elif args[1] == "JOIN":
 				# join message
 				self.log (self.notification_string + termcode("BOLD") + termcode("DARK_BLUE") + sender.nick + termcode("ENDC") +termcode("DARK_MAGENTA") + " [" + termcode("DARK_GREEN") + sender.hostname + termcode("DARK_MAGENTA") + "]" + termcode("ENDC") + " has joined " + termcode("BOLD") + args[2] + termcode("ENDC"))
