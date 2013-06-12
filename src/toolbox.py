@@ -68,9 +68,6 @@ def termcode (color):
 
 IRC_COLOR_ENABLED = True
 
-def set_irc_colors (state):
-	IRC_COLOR_ENABLED = state
-
 # yet not all colors are in
 IRC_COLOR = {
 	"WHITE" : 48,

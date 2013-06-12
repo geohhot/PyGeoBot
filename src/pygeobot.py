@@ -119,9 +119,7 @@ class pygeobot(threading.Thread):
 			pass
 
 		# check for IRC colors
-		if self.config['ircColors'] == False:
-			#print "Disabling colors .."
-			toolbox.set_irc_colors (False)
+		toolbox.IRC_COLOR_ENABLED = self.config['ircColors']
 
 		# add admins array
 		self.admins = []
