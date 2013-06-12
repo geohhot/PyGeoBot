@@ -66,6 +66,11 @@ def termcode (color):
 	except KeyError:
 		return ""
 
+IRC_COLOR_ENABLED = True
+
+def set_irc_colors (state):
+	IRC_COLOR_ENABLED = state
+
 # yet not all colors are in
 IRC_COLOR = {
 	"WHITE" : 48,
@@ -104,7 +109,7 @@ IRC_COLOR = {
 }
 
 def irccode (color):
-	if len(IRC_COLOR) == 0:
+	if not IRC_COLOR_ENABLED:
 		return ""
 	try:
 		if color == "RESET":

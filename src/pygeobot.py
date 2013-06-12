@@ -118,8 +118,8 @@ class pygeobot(threading.Thread):
 
 		# check for IRC colors
 		if self.config['ircColors'] == False:
-			print "Disabling colors .."
-			toolbox.IRC_COLOR = {}
+			#print "Disabling colors .."
+			toolbox.set_irc_colors (False)
 
 	# connect function
 	"""
