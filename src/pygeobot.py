@@ -200,18 +200,14 @@ class pygeobot(threading.Thread):
 		else:
 			line = self.ircSock.recv(4048)
 			if line == "":
+				self.log ("Server dropped connection, reconnecting.")
+				self.init_to_server()
 				return -1
 			self.buffer += line
 			return ""
 
 	# parse messages from IRC server
 	def parse (self, line):
-		if line == -1:
-			# got empty string from server, means socket was closed
-			# try to reconnect
-			self.log ("Server dropped connection, reconnecting.")
-			self.init_to_server()
-			return 
 		line.strip()
 		#line = line.decode('utf-8')
 		args = line.split()
